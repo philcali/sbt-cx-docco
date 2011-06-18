@@ -2,34 +2,33 @@
 
 This is an overly simple sbt plugin for [circumflex docco] style documentation generation.
 
-Include the plugin in your `project/plugins/plugins.scala`
+Include the plugin in your `project/plugins/build.sbt`
 
-    import sbt._
-
-    class Plugin(info: ProjectInfo) extends PluginDefinition(info) {
-      val cxDoccoPlugin = "com.github.philcali" % "sbt-cx-docco" % "0.0.1"
-    }
+    libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.2"
 
 Your project definition may vary. The plugin allows pretty granular control over what
-files to document, and where to place the documentation. The base `DoccoProject` requires
-the `doccoCrawlerPath` to be overridden, using Sbt's `Path`'s. The default
-`doccoOutputPath` will be the project's output path / "docco".
+files to document, and where to place the documentation. An example project definition below:
 
-An example project definition below:
+    doccoBasePath <<= (sourceManaged)( s => s)
 
-    import sbt._
+    // I'm using this to filter files that contain this regex
+    // This defaults to anything that ends with .scala of course
+    doccoFilenameRegex := """.*\.[scala|sbt]""".r
 
-    // A default project definition
-    class Project(info: ProjectInfo) extends DefaultProject(info) with DoccoProject {
-      def doccoCrawlerPath = mainSourcePath
-    }
+Here's a list of all the circumflex settings during the batch docco process 
+(I copied from the plugin's source):
 
-    // A parent project definition
-    class Project(info: ProjectInfo) extends ParentProject(info) with DoccoProject {
-      def doccoCrawlerPath = "."
-    }
+    // Configurable Settings
+    doccoBasePath := file("."),
+    doccoOutputPath <<= (target) { _ / "docco" },
+    doccoPageTemplate := file(".") / "docco-batch-page.html.ftl",
+    doccoIndexTemplate := file(".") / "docco-index.html.ftl",
+    doccoFilenameRegex := """.*\.scala$""".r,
+    doccoTitle <<= (name)( n => n),
+    doccoStripScaladoc := true,
+    doccoSkipEmpty := true
 
-Being the `DefaultProject`s and `ParentProject`s are so common, there a trait for each one
-which provides the aforementioned values as defaults: `DoccoSingle` and `DoccoParent`, respectively.
+
+Run the `docco` task to generate docco documentation.
 
 [circumflex docco]: http://circumflex.ru/projects/docco/index.html
