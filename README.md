@@ -2,6 +2,8 @@
 
 This is an overly simple sbt plugin for [circumflex docco] style documentation generation.
 
+Here's an example on this very plugin: [gh-pages][gh-pages]
+
 Include the plugin in your `project/plugins/build.sbt`
 
     libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.3"
@@ -34,4 +36,5 @@ Here's a list of all the circumflex settings during the batch docco process
 
 Run the `docco` task to generate docco documentation.
 
+[gh-pages]: http://philcali.github.com/sbt-cx-docco/
 [circumflex docco]: http://circumflex.ru/projects/docco/index.html
