@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>DoccoProject.scala</title>
+  <link href="http://circumflex.ru/css/docco.css"
+        rel="stylesheet"
+        type="text/css"
+        media="screen, projection"/>
+  <script type="text/javascript" src="http://circumflex.ru/js/highlight.pack.js">
+  </script>
+  <script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+  </script>
+</head>
+<body>
+<div id="container">
+  <table cellspacing="0" cellpadding="0">
+    <thead>
+    <tr>
+      <th class="docs">
+        <h1><a href="../../../index.html" title="Back to index">&larr;</a>&nbsp;&nbsp;DoccoProject.scala</h1>
+      </th>
+      <th class="code"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr id="section-0">
+      <td class="docs">
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-0">#</a>
+        </div>
+      
+      </td>
+      <td class="code">
+        <pre class="scala"><code>import sbt._
+
+import Keys._
+
+import util.matching.Regex
+
+import ru.circumflex.{core, docco}
+import core.cx
+import docco._</code></pre>
+      </td>
+    </tr>
+    <tr id="section-1">
+      <td class="docs">
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-1">#</a>
+        </div>
+      <h1>SBT Circumflex Docco Plugin</h1>
+<p>This <a href="https://github.com/harrah/xsbt/wiki">sbt</a> plugin allows for docco style document by running a single command in your build tool.</p>
+<p>The plugin offers developers multiple ways to configure the the output and docco generation. The program that actually generates the docco style docs was written and currently maintained by the <a href="http://circumflex.ru/">cicumflex</a> team.</p>
+<p>Simply insert the following line in your ./project/plugins/build.sbt:</p>
+<pre><code>libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.3"</code></pre>
+<p>In a single project using a build.sbt, you must include the following line to enjoy the docco goodness:</p>
+<pre><code>seq( CxDocco.doccoSettings: _* )</code></pre>
+<p>In a multi-tier project using a Build.scala, you must add <code>CxDocco.doccoSettings</code> to each project that you want to use the <code>docco</code> task.</p>
+<p>Enjoy!</p>
+
+      </td>
+      <td class="code">
+        <pre class="scala"><code>object CxDocco extends Plugin {
+  val doccoBasePath = SettingKey[File](&quot;docco-base-path&quot;,
+        &quot;The base path for circumflex batch docco processing.&quot;)
+
+  val doccoOutputPath = SettingKey[File](&quot;docco-output-path&quot;,
+        &quot;The output path resulting in html docco documentation.&quot;)
+
+  val doccoPageTemplate = SettingKey[File](&quot;docco-page-template&quot;,
+        &quot;The page template applied to all converted source files.&quot;)
+
+  val doccoIndexTemplate = SettingKey[File](&quot;docco-index-template&quot;,
+        &quot;The template for the index page in batch processing.&quot;)
+
+  val doccoFilenameRegex = SettingKey[Regex](&quot;docco-filename-regex&quot;,
+        &quot;The regex used to obtain files for documenting.&quot;)
+  
+  val doccoTitle = SettingKey[String](&quot;docco-title&quot;,
+        &quot;The resulting index title&quot;)
+
+  val doccoStripScaladoc = SettingKey[Boolean](&quot;docco-strip-scaladoc&quot;,
+        &quot;Strips the Scaladoc in the resulting docco output&quot;)
+
+  val doccoSkipEmpty = SettingKey[Boolean](&quot;docco-skip-empty&quot;,
+        &quot;If true, filters docco's with no markdown.&quot;)
+
+  lazy val doccoProperties = TaskKey[Unit](&quot;docco-properties&quot;,
+        &quot;Builds the cx.properties file for batch processing&quot;)
+  private def doccoPropertiesTask = 
+    (doccoBasePath, doccoOutputPath, doccoPageTemplate,
+    doccoIndexTemplate, doccoFilenameRegex, doccoTitle, 
+    doccoStripScaladoc, doccoSkipEmpty, streams) map {
+    (bp, op, pt, it, fr, ti, ss, se, s)  =&gt;
+    // Settings circumflex properties
+    cx(&quot;docco.basePath&quot;) = bp
+    cx(&quot;docco.outputPath&quot;) = op
+
+    // Need to build the output path
+    if (!op.exists) {
+      IO.createDirectory(op)
+    }
+
+    // The cx batch processor looks only for a string, so we must
+    // verify that these exist
+    if (pt.exists) {
+      cx(&quot;docco.pageTemplate&quot;) = pt.absolutePath
+    }
+
+    if (it.exists) {
+      cx(&quot;docco.indexTemplate&quot;) = it.absolutePath
+    }
+
+    cx(&quot;docco.filenameRegex&quot;) = fr.toString
+    cx(&quot;docco.title&quot;) = ti
+    cx(&quot;docco.stripScaladoc&quot;) = ss
+    cx(&quot;docco.skipEmpty&quot;) = se
+    
+    s.log.info(&quot;Setting docco properties ... done.&quot;)
+  }
+
+  lazy val docco = TaskKey[Unit](&quot;docco&quot;, &quot;Docco style documentation generations&quot;)
+
+  override lazy val settings = Seq (</code></pre>
+      </td>
+    </tr>
+    <tr id="section-2">
+      <td class="docs">
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-2">#</a>
+        </div>
+      <h2>Configurable Settings and Tasks</h2>
+<ul>
+  <li>doccoBasePath is where the crawler will start its search</li>
+  <li>doccoOutputPath is where you want your docco's</li>
+  <li>doccoPageTemplate is the path to the template producing this page</li>
+  <li>doccoIndexTemplate is the path to the template producing the previous page</li>
+  <li>doccoFilenameRegex is the regex to filter physical files</li>
+  <li>doccoTitle is the title of the index page</li>
+  <li>doccoStripScaladoc strips any Scaladoc tags</li>
+  <li>doccoSkipEmpty will not include a file with documentation</li>
+</ul>
+
+      </td>
+      <td class="code">
+        <pre class="scala"><code>    // Configurable Settings
+    doccoBasePath := file(&quot;.&quot;),
+    doccoOutputPath &lt;&lt;= (target) { _ / &quot;docco&quot; },
+    doccoPageTemplate := file(&quot;.&quot;) / &quot;docco-batch-page.html.ftl&quot;,
+    doccoIndexTemplate := file(&quot;.&quot;) / &quot;docco-index.html.ftl&quot;,
+    doccoFilenameRegex := &quot;&quot;&quot;.*\.scala$&quot;&quot;&quot;.r,
+    doccoTitle &lt;&lt;= (name)( n =&gt; n),
+    doccoStripScaladoc := true,
+    doccoSkipEmpty := true,
+
+    // Configurable tasks
+    doccoProperties &lt;&lt;= doccoPropertiesTask,
+    docco &lt;&lt;= (streams) map { s =&gt;
+      s.log.info(&quot;Generating docco's now...&quot;)
+      val batch = new DoccoBatch
+      batch.generate
+      s.log.info(&quot;Done&quot;)
+    },
+    docco &lt;&lt;= docco dependsOn doccoProperties
+  )
+}</code></pre>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>
