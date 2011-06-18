@@ -4,7 +4,7 @@ This is an overly simple sbt plugin for [circumflex docco] style documentation g
 
 Include the plugin in your `project/plugins/build.sbt`
 
-    libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.2"
+    libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.3"
 
 Your project definition may vary. The plugin allows pretty granular control over what
 files to document, and where to place the documentation. An example project definition below:
