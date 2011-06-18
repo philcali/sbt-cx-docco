@@ -8,6 +8,34 @@ import ru.circumflex.{core, docco}
 import core.cx
 import docco._
 
+/*!# SBT Circumflex Docco Plugin
+
+This [sbt][sbt] plugin allows for docco style document
+by running a single command in your build tool.
+
+The plugin offers developers multiple ways to configure the
+the output and docco generation. The program that actually
+generates the docco style docs was written and currently
+maintained by the [cicumflex][circumflex] team.
+
+Simply insert the following line in your ./project/plugins/build.sbt:
+
+    libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.3"
+
+In a single project using a build.sbt, you must include the following line
+to enjoy the docco goodness:
+
+    seq( CxDocco.doccoSettings: _* )
+
+In a multi-tier project using a Build.scala, you must add `CxDocco.doccoSettings`
+to each project that you want to use the `docco` task.
+
+Enjoy!
+
+[sbt]: https://github.com/harrah/xsbt/wiki
+[circumflex]: http://circumflex.ru/
+
+*/
 object CxDocco extends Plugin {
   val doccoBasePath = SettingKey[File]("docco-base-path",
         "The base path for circumflex batch docco processing.")
@@ -70,6 +98,17 @@ object CxDocco extends Plugin {
   lazy val docco = TaskKey[Unit]("docco", "Docco style documentation generations")
 
   val doccoSettings = Seq (
+    /*! ## Configurable Settings
+
+  * doccoBasePath is where the crawler will start its search
+  * doccoOutputPath is where you want your docco's
+  * doccoPageTemplate is the path to the template producing this page
+  * doccoIndexTemplate is the path to the template producing the previous page 
+  * doccoFilenameRegex is the regex to filter physical files
+  * doccoTitle is the title of the index page
+  * doccoStripScaladoc strips any Scaladoc tags
+  * doccoSkipEmpty will not include a file with documentation
+    */
     // Configurable Settings
     doccoBasePath := file("."),
     doccoOutputPath <<= (target) { _ / "docco" },
