@@ -78,7 +78,7 @@ object CxDocco extends Plugin {
     doccoFilenameRegex := """.*\.scala$""".r,
     doccoTitle <<= (name)( n => n),
     doccoStripScaladoc := true,
-    doccoSkipEmpty := false,
+    doccoSkipEmpty := true,
 
     // Configurable tasks
     doccoProperties <<= doccoPropertiesTask,
