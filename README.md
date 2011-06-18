@@ -9,7 +9,7 @@ Include the plugin in your `project/plugins/build.sbt`
 Your project definition may vary. The plugin allows pretty granular control over what
 files to document, and where to place the documentation. An example project definition below:
 
-    doccoBasePath <<= (sourceManaged)( s => s)
+    doccoBasePath := file("src/main/scala")
 
     // I'm using this to filter files that contain this regex
     // This defaults to anything that ends with .scala of course
