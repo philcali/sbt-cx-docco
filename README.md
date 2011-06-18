@@ -9,6 +9,9 @@ Include the plugin in your `project/plugins/build.sbt`
 Your project definition may vary. The plugin allows pretty granular control over what
 files to document, and where to place the documentation. An example project definition below:
 
+    // This is required to use cx docco in your project
+    seq(CxDocco.doccoSettings: _*)
+
     doccoBasePath := file("src/main/scala")
 
     // I'm using this to filter files that contain this regex
