@@ -69,7 +69,7 @@ object CxDocco extends Plugin {
 
   lazy val docco = TaskKey[Unit]("docco", "Docco style documentation generations")
 
-  override lazy val settings = Seq (
+  val doccoSettings = Seq (
     // Configurable Settings
     doccoBasePath := file("."),
     doccoOutputPath <<= (target) { _ / "docco" },
