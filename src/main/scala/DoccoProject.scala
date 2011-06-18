@@ -44,6 +44,11 @@ object CxDocco extends Plugin {
     cx("docco.basePath") = bp
     cx("docco.outputPath") = op
 
+    // Need to build the output path
+    if (!op.exists) {
+      IO.createDirectory(op)
+    }
+
     // The cx batch processor looks only for a string, so we must
     // verify that these exist
     if (pt.exists) {
@@ -73,7 +78,7 @@ object CxDocco extends Plugin {
     doccoFilenameRegex := """.*\.scala$""".r,
     doccoTitle <<= (name)( n => n),
     doccoStripScaladoc := true,
-    doccoSkipEmpty := true,
+    doccoSkipEmpty := false,
 
     // Configurable tasks
     doccoProperties <<= doccoPropertiesTask,
