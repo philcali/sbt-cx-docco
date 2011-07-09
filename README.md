@@ -6,13 +6,10 @@ Here's an example on this very plugin: [gh-pages][gh-pages]
 
 Include the plugin in your `project/plugins/build.sbt`
 
-    libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.3"
+    libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.4"
 
 Your project definition may vary. The plugin allows pretty granular control over what
 files to document, and where to place the documentation. An example project definition below:
-
-    // This is required to use cx docco in your project
-    seq(CxDocco.doccoSettings: _*)
 
     doccoBasePath := file("src/main/scala")
 
