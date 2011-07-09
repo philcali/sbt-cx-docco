@@ -22,14 +22,6 @@ Simply insert the following line in your ./project/plugins/build.sbt:
 
     libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.3"
 
-In a single project using a build.sbt, you must include the following line
-to enjoy the docco goodness:
-
-    seq( CxDocco.doccoSettings: _* )
-
-In a multi-tier project using a Build.scala, you must add `CxDocco.doccoSettings`
-to each project that you want to use the `docco` task.
-
 Enjoy!
 
 [sbt]: https://github.com/harrah/xsbt/wiki
@@ -37,32 +29,35 @@ Enjoy!
 
 */
 object CxDocco extends Plugin {
-  val doccoBasePath = SettingKey[File]("docco-base-path",
+  val Docco = config("docco")
+
+  val doccoBasePath = SettingKey[File]("base-path",
         "The base path for circumflex batch docco processing.")
 
-  val doccoOutputPath = SettingKey[File]("docco-output-path",
+  val doccoOutputPath = SettingKey[File]("output-path",
         "The output path resulting in html docco documentation.")
 
-  val doccoPageTemplate = SettingKey[File]("docco-page-template",
+  val doccoPageTemplate = SettingKey[File]("page-template",
         "The page template applied to all converted source files.")
 
-  val doccoIndexTemplate = SettingKey[File]("docco-index-template",
+  val doccoIndexTemplate = SettingKey[File]("index-template",
         "The template for the index page in batch processing.")
 
-  val doccoFilenameRegex = SettingKey[Regex]("docco-filename-regex",
+  val doccoFilenameRegex = SettingKey[Regex]("filename-regex",
         "The regex used to obtain files for documenting.")
   
-  val doccoTitle = SettingKey[String]("docco-title",
+  val doccoTitle = SettingKey[String]("title",
         "The resulting index title")
 
-  val doccoStripScaladoc = SettingKey[Boolean]("docco-strip-scaladoc",
+  val doccoStripScaladoc = SettingKey[Boolean]("strip-scaladoc",
         "Strips the Scaladoc in the resulting docco output")
 
-  val doccoSkipEmpty = SettingKey[Boolean]("docco-skip-empty",
+  val doccoSkipEmpty = SettingKey[Boolean]("skip-empty",
         "If true, filters docco's with no markdown.")
 
-  lazy val doccoProperties = TaskKey[Unit]("docco-properties",
+  lazy val doccoProperties = TaskKey[Unit]("properties",
         "Builds the cx.properties file for batch processing")
+
   private def doccoPropertiesTask = 
     (doccoBasePath, doccoOutputPath, doccoPageTemplate,
     doccoIndexTemplate, doccoFilenameRegex, doccoTitle, 
@@ -97,7 +92,12 @@ object CxDocco extends Plugin {
 
   lazy val docco = TaskKey[Unit]("docco", "Docco style documentation generations")
 
-  val doccoSettings = Seq (
+  override lazy val settings = 
+    doccoSettings ++ Seq (
+      docco <<= (docco in Docco).identity
+    ) ++ Seq(docco, doccoProperties).map (aggregate in _ := false)
+
+  val doccoSettings = inConfig(Docco) (Seq (
     /*! ## Configurable Settings
 
   * doccoBasePath is where the crawler will start its search
@@ -128,5 +128,5 @@ object CxDocco extends Plugin {
       s.log.info("Done")
     },
     docco <<= docco dependsOn doccoProperties
-  )
+  ))
 }
