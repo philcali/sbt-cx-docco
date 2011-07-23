@@ -1,10 +1,10 @@
-doccoTitle := "SBT Circumflex Docco Plugin"
+doccoTitle in CxDocco.Docco := "SBT Circumflex Docco Plugin"
 
 name := "sbt-cx-docco"
 
 organization := "com.github.philcali"
 
-version := "0.0.4"
+version <<= (sbtVersion) ("sbt" + _ + "_0.0.5")
 
 sbtPlugin := true
 

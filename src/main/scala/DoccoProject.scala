@@ -18,9 +18,11 @@ the output and docco generation. The program that actually
 generates the docco style docs was written and currently
 maintained by the [cicumflex][circumflex] team.
 
-Simply insert the following line in your ./project/plugins/build.sbt:
+Simply insert the following lines in your ./project/plugins/build.sbt:
 
-    libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.3"
+    libraryDependencies <+= (sbtVersion) (
+      "com.github.philcali" %% "sbt-cx-docco" % ("sbt" + _ + "_0.0.5")
+    )
 
 Enjoy!
 
@@ -115,7 +117,7 @@ object CxDocco extends Plugin {
     doccoPageTemplate := file(".") / "docco-batch-page.html.ftl",
     doccoIndexTemplate := file(".") / "docco-index.html.ftl",
     doccoFilenameRegex := """.*\.scala$""".r,
-    doccoTitle <<= (name)( n => n),
+    doccoTitle <<= name.identity,
     doccoStripScaladoc := true,
     doccoSkipEmpty := true,
 
