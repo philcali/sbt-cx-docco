@@ -6,7 +6,9 @@ Here's an example on this very plugin: [gh-pages][gh-pages]
 
 Include the plugin in your `project/plugins/build.sbt`
 
-    libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.4"
+    libraryDependencies += (sbtVersion) ( sv =>
+      "com.github.philcali" %% "sbt-cx-docco" % ("sbt" + sv + "_0.0.5")
+    )
 
 Your project definition may vary. The plugin allows pretty granular control over what
 files to document, and where to place the documentation. An example project definition below:
@@ -26,7 +28,7 @@ Here's a list of all the circumflex settings during the batch docco process
     doccoPageTemplate := file(".") / "docco-batch-page.html.ftl",
     doccoIndexTemplate := file(".") / "docco-index.html.ftl",
     doccoFilenameRegex := """.*\.scala$""".r,
-    doccoTitle <<= (name)( n => n),
+    doccoTitle <<= name.identity,  
     doccoStripScaladoc := true,
     doccoSkipEmpty := true
 
