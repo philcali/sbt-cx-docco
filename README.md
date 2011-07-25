@@ -6,7 +6,7 @@ Here's an example on this very plugin: [gh-pages][gh-pages]
 
 Include the plugin in your `project/plugins/build.sbt`
 
-    libraryDependencies += (sbtVersion) ( sv =>
+    libraryDependencies <+= (sbtVersion) ( sv =>
       "com.github.philcali" %% "sbt-cx-docco" % ("sbt" + sv + "_0.0.5")
     )
 
