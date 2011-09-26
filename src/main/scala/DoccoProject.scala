@@ -4,9 +4,8 @@ import Keys._
 
 import util.matching.Regex
 
-import ru.circumflex.{core, docco}
-import core.cx
-import docco._
+import ru.circumflex.core.cx
+import ru.circumflex.docco._
 
 /*!# SBT Circumflex Docco Plugin
 
@@ -20,9 +19,7 @@ maintained by the [cicumflex][circumflex] team.
 
 Simply insert the following lines in your ./project/plugins/build.sbt:
 
-    libraryDependencies <+= (sbtVersion) (
-      "com.github.philcali" %% "sbt-cx-docco" % ("sbt" + _ + "_0.0.5")
-    )
+    addSbtPlugin("com.github.philcali" % "sbt-lwjgl-plugin" % "0.1.0")
 
 Enjoy!
 
@@ -30,40 +27,42 @@ Enjoy!
 [circumflex]: http://circumflex.ru/
 
 */
-object CxDocco extends Plugin {
-  val Docco = config("docco")
+object DoccoPlugin extends Plugin {
+  import docco._
 
-  val doccoBasePath = SettingKey[File]("base-path",
-        "The base path for circumflex batch docco processing.")
+  object docco {
+    val basePath = SettingKey[File]("docco-base-path",
+          "The base path for circumflex batch docco processing.")
 
-  val doccoOutputPath = SettingKey[File]("output-path",
-        "The output path resulting in html docco documentation.")
+    val outputPath = SettingKey[File]("docco-output-path",
+          "The output path resulting in html docco documentation.")
 
-  val doccoPageTemplate = SettingKey[File]("page-template",
-        "The page template applied to all converted source files.")
+    val pageTemplate = SettingKey[File]("docco-page-template",
+          "The page template applied to all converted source files.")
 
-  val doccoIndexTemplate = SettingKey[File]("index-template",
-        "The template for the index page in batch processing.")
+    val indexTemplate = SettingKey[File]("docco-index-template",
+          "The template for the index page in batch processing.")
 
-  val doccoFilenameRegex = SettingKey[Regex]("filename-regex",
-        "The regex used to obtain files for documenting.")
-  
-  val doccoTitle = SettingKey[String]("title",
-        "The resulting index title")
+    val filenameRegex = SettingKey[Regex]("docco-filename-regex",
+          "The regex used to obtain files for documenting.")
+    
+    val title = SettingKey[String]("docco-title",
+          "The resulting index title")
 
-  val doccoStripScaladoc = SettingKey[Boolean]("strip-scaladoc",
-        "Strips the Scaladoc in the resulting docco output")
+    val stripScaladoc = SettingKey[Boolean]("docco-strip-scaladoc",
+          "Strips the Scaladoc in the resulting docco output")
 
-  val doccoSkipEmpty = SettingKey[Boolean]("skip-empty",
-        "If true, filters docco's with no markdown.")
+    val skipEmpty = SettingKey[Boolean]("docco-skip-empty",
+          "If true, filters docco's with no markdown.")
 
-  lazy val doccoProperties = TaskKey[Unit]("properties",
-        "Builds the cx.properties file for batch processing")
+    val properties = TaskKey[Unit]("docco-properties",
+          "Builds the cx.properties file for batch processing")
+  }
 
   private def doccoPropertiesTask = 
-    (doccoBasePath, doccoOutputPath, doccoPageTemplate,
-    doccoIndexTemplate, doccoFilenameRegex, doccoTitle, 
-    doccoStripScaladoc, doccoSkipEmpty, streams) map {
+    (basePath, outputPath, pageTemplate,
+    indexTemplate, filenameRegex, title, 
+    stripScaladoc, skipEmpty, streams) map {
     (bp, op, pt, it, fr, ti, ss, se, s)  =>
     // Settings circumflex properties
     cx("docco.basePath") = bp
@@ -92,14 +91,9 @@ object CxDocco extends Plugin {
     s.log.info("Setting docco properties ... done.")
   }
 
-  lazy val docco = TaskKey[Unit]("docco", "Docco style documentation generations")
+  lazy val doccoTask = TaskKey[Unit]("docco", "Docco style documentation generations")
 
-  override lazy val settings = 
-    doccoSettings ++ Seq (
-      docco <<= (docco in Docco).identity
-    ) ++ Seq(docco, doccoProperties).map (aggregate in _ := false)
-
-  val doccoSettings = inConfig(Docco) (Seq (
+  lazy val doccoSettings: Seq[Setting[_]] = Seq (
     /*! ## Configurable Settings
 
   * doccoBasePath is where the crawler will start its search
@@ -112,23 +106,26 @@ object CxDocco extends Plugin {
   * doccoSkipEmpty will not include a file with documentation
     */
     // Configurable Settings
-    doccoBasePath := file("."),
-    doccoOutputPath <<= (target) { _ / "docco" },
-    doccoPageTemplate := file(".") / "docco-batch-page.html.ftl",
-    doccoIndexTemplate := file(".") / "docco-index.html.ftl",
-    doccoFilenameRegex := """.*\.scala$""".r,
-    doccoTitle <<= name.identity,
-    doccoStripScaladoc := true,
-    doccoSkipEmpty := true,
+    basePath := file("."),
+    outputPath <<= (target) { _ / "docco" },
+    pageTemplate := file(".") / "docco-batch-page.html.ftl",
+    indexTemplate := file(".") / "docco-index.html.ftl",
+    filenameRegex := """.*\.scala$""".r,
+    docco.title <<= name,
+    stripScaladoc := true,
+    skipEmpty := true,
 
     // Configurable tasks
-    doccoProperties <<= doccoPropertiesTask,
-    docco <<= (streams) map { s =>
+    properties <<= doccoPropertiesTask,
+    doccoTask <<= (streams) map { s =>
       s.log.info("Generating docco's now...")
       val batch = new DoccoBatch
       batch.generate
       s.log.info("Done")
     },
-    docco <<= docco dependsOn doccoProperties
-  ))
+    doccoTask <<= doccoTask dependsOn properties,
+
+    aggregate in properties := false,
+    aggregate in doccoTask := false
+  )
 }
