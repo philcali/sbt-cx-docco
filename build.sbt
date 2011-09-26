@@ -1,14 +1,16 @@
-doccoTitle in CxDocco.Docco := "SBT Circumflex Docco Plugin"
+seq(doccoSettings: _*)
+
+docco.title := "SBT Docco Plugin"
 
 name := "sbt-cx-docco"
 
 organization := "com.github.philcali"
 
-version <<= (sbtVersion) ("sbt" + _ + "_0.0.5")
+version := "0.1.0"
 
 sbtPlugin := true
 
-libraryDependencies += "ru.circumflex" % "circumflex-docco" % "2.0.1"
+libraryDependencies += "ru.circumflex" % "circumflex-docco" % "2.0.3"
 
 publishTo := Some("Scala Tools Nexus" at 
                   "http://nexus.scala-tools.org/content/repositories/releases/")
