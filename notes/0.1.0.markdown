@@ -1,0 +1,3 @@
+- Support for sbt 0.11.x
+- Aligned to sbt plugin best practices
+- `docco.outputPath` was added to the `clean` task
