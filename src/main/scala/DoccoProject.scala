@@ -125,6 +125,8 @@ object DoccoPlugin extends Plugin {
     },
     doccoTask <<= doccoTask dependsOn properties,
 
+    cleanFiles <+= outputPath,
+
     aggregate in properties := false,
     aggregate in doccoTask := false
   )

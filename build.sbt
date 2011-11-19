@@ -10,6 +10,8 @@ version := "0.1.0"
 
 sbtPlugin := true
 
+scalacOptions += "-deprecation"
+
 libraryDependencies += "ru.circumflex" % "circumflex-docco" % "2.1"
 
 publishTo := Some("Scala Tools Nexus" at 
