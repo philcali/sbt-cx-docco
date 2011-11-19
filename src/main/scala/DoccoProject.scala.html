@@ -39,9 +39,8 @@ import Keys._
 
 import util.matching.Regex
 
-import ru.circumflex.{core, docco}
-import core.cx
-import docco._</code></pre>
+import ru.circumflex.core.cx
+import ru.circumflex.docco._</code></pre>
       </td>
     </tr>
     <tr id="section-1">
@@ -52,46 +51,48 @@ import docco._</code></pre>
       <h1>SBT Circumflex Docco Plugin</h1>
 <p>This <a href="https://github.com/harrah/xsbt/wiki">sbt</a> plugin allows for docco style document by running a single command in your build tool.</p>
 <p>The plugin offers developers multiple ways to configure the the output and docco generation. The program that actually generates the docco style docs was written and currently maintained by the <a href="http://circumflex.ru/">cicumflex</a> team.</p>
-<p>Simply insert the following line in your ./project/plugins/build.sbt:</p>
-<pre><code>libraryDependencies += "com.github.philcali" %% "sbt-cx-docco" % "0.0.3"</code></pre>
+<p>Simply insert the following lines in your ./project/plugins/build.sbt:</p>
+<pre><code>addSbtPlugin("com.github.philcali" % "sbt-lwjgl-plugin" % "0.1.0")</code></pre>
 <p>Enjoy!</p>
 
       </td>
       <td class="code">
-        <pre class="scala"><code>object CxDocco extends Plugin {
-  val Docco = config(&quot;docco&quot;)
+        <pre class="scala"><code>object DoccoPlugin extends Plugin {
+  import docco._
 
-  val doccoBasePath = SettingKey[File](&quot;base-path&quot;,
-        &quot;The base path for circumflex batch docco processing.&quot;)
+  object docco {
+    val basePath = SettingKey[File](&quot;docco-base-path&quot;,
+          &quot;The base path for circumflex batch docco processing.&quot;)
 
-  val doccoOutputPath = SettingKey[File](&quot;output-path&quot;,
-        &quot;The output path resulting in html docco documentation.&quot;)
+    val outputPath = SettingKey[File](&quot;docco-output-path&quot;,
+          &quot;The output path resulting in html docco documentation.&quot;)
 
-  val doccoPageTemplate = SettingKey[File](&quot;page-template&quot;,
-        &quot;The page template applied to all converted source files.&quot;)
+    val pageTemplate = SettingKey[File](&quot;docco-page-template&quot;,
+          &quot;The page template applied to all converted source files.&quot;)
 
-  val doccoIndexTemplate = SettingKey[File](&quot;index-template&quot;,
-        &quot;The template for the index page in batch processing.&quot;)
+    val indexTemplate = SettingKey[File](&quot;docco-index-template&quot;,
+          &quot;The template for the index page in batch processing.&quot;)
 
-  val doccoFilenameRegex = SettingKey[Regex](&quot;filename-regex&quot;,
-        &quot;The regex used to obtain files for documenting.&quot;)
-  
-  val doccoTitle = SettingKey[String](&quot;title&quot;,
-        &quot;The resulting index title&quot;)
+    val filenameRegex = SettingKey[Regex](&quot;docco-filename-regex&quot;,
+          &quot;The regex used to obtain files for documenting.&quot;)
+    
+    val title = SettingKey[String](&quot;docco-title&quot;,
+          &quot;The resulting index title&quot;)
 
-  val doccoStripScaladoc = SettingKey[Boolean](&quot;strip-scaladoc&quot;,
-        &quot;Strips the Scaladoc in the resulting docco output&quot;)
+    val stripScaladoc = SettingKey[Boolean](&quot;docco-strip-scaladoc&quot;,
+          &quot;Strips the Scaladoc in the resulting docco output&quot;)
 
-  val doccoSkipEmpty = SettingKey[Boolean](&quot;skip-empty&quot;,
-        &quot;If true, filters docco's with no markdown.&quot;)
+    val skipEmpty = SettingKey[Boolean](&quot;docco-skip-empty&quot;,
+          &quot;If true, filters docco's with no markdown.&quot;)
 
-  lazy val doccoProperties = TaskKey[Unit](&quot;properties&quot;,
-        &quot;Builds the cx.properties file for batch processing&quot;)
+    val properties = TaskKey[Unit](&quot;docco-properties&quot;,
+          &quot;Builds the cx.properties file for batch processing&quot;)
+  }
 
   private def doccoPropertiesTask = 
-    (doccoBasePath, doccoOutputPath, doccoPageTemplate,
-    doccoIndexTemplate, doccoFilenameRegex, doccoTitle, 
-    doccoStripScaladoc, doccoSkipEmpty, streams) map {
+    (basePath, outputPath, pageTemplate,
+    indexTemplate, filenameRegex, title, 
+    stripScaladoc, skipEmpty, streams) map {
     (bp, op, pt, it, fr, ti, ss, se, s)  =&gt;
     // Settings circumflex properties
     cx(&quot;docco.basePath&quot;) = bp
@@ -120,14 +121,9 @@ import docco._</code></pre>
     s.log.info(&quot;Setting docco properties ... done.&quot;)
   }
 
-  lazy val docco = TaskKey[Unit](&quot;docco&quot;, &quot;Docco style documentation generations&quot;)
+  lazy val doccoTask = TaskKey[Unit](&quot;docco&quot;, &quot;Docco style documentation generations&quot;)
 
-  override lazy val settings = 
-    doccoSettings ++ Seq (
-      docco &lt;&lt;= (docco in Docco).identity
-    ) ++ Seq(docco, doccoProperties).map (aggregate in _ := false)
-
-  val doccoSettings = inConfig(Docco) (Seq (</code></pre>
+  lazy val doccoSettings: Seq[Setting[_]] = Seq (</code></pre>
       </td>
     </tr>
     <tr id="section-2">
@@ -150,25 +146,28 @@ import docco._</code></pre>
       </td>
       <td class="code">
         <pre class="scala"><code>    // Configurable Settings
-    doccoBasePath := file(&quot;.&quot;),
-    doccoOutputPath &lt;&lt;= (target) { _ / &quot;docco&quot; },
-    doccoPageTemplate := file(&quot;.&quot;) / &quot;docco-batch-page.html.ftl&quot;,
-    doccoIndexTemplate := file(&quot;.&quot;) / &quot;docco-index.html.ftl&quot;,
-    doccoFilenameRegex := &quot;&quot;&quot;.*\.scala$&quot;&quot;&quot;.r,
-    doccoTitle &lt;&lt;= (name)( n =&gt; n),
-    doccoStripScaladoc := true,
-    doccoSkipEmpty := true,
+    basePath := file(&quot;.&quot;),
+    outputPath &lt;&lt;= (target) { _ / &quot;docco&quot; },
+    pageTemplate := file(&quot;.&quot;) / &quot;docco-batch-page.html.ftl&quot;,
+    indexTemplate := file(&quot;.&quot;) / &quot;docco-index.html.ftl&quot;,
+    filenameRegex := &quot;&quot;&quot;.*\.scala$&quot;&quot;&quot;.r,
+    docco.title &lt;&lt;= name,
+    stripScaladoc := true,
+    skipEmpty := true,
 
     // Configurable tasks
-    doccoProperties &lt;&lt;= doccoPropertiesTask,
-    docco &lt;&lt;= (streams) map { s =&gt;
+    properties &lt;&lt;= doccoPropertiesTask,
+    doccoTask &lt;&lt;= (streams) map { s =&gt;
       s.log.info(&quot;Generating docco's now...&quot;)
       val batch = new DoccoBatch
       batch.generate
       s.log.info(&quot;Done&quot;)
     },
-    docco &lt;&lt;= docco dependsOn doccoProperties
-  ))
+    doccoTask &lt;&lt;= doccoTask dependsOn properties,
+
+    aggregate in properties := false,
+    aggregate in doccoTask := false
+  )
 }</code></pre>
       </td>
     </tr>
