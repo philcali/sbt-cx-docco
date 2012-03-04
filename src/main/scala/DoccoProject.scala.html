@@ -33,7 +33,9 @@
       
       </td>
       <td class="code">
-        <pre class="scala"><code>import sbt._
+        <pre class="scala"><code>package com.github.philcali
+
+import sbt._
 
 import Keys._
 
@@ -52,7 +54,7 @@ import ru.circumflex.docco._</code></pre>
 <p>This <a href="https://github.com/harrah/xsbt/wiki">sbt</a> plugin allows for docco style document by running a single command in your build tool.</p>
 <p>The plugin offers developers multiple ways to configure the the output and docco generation. The program that actually generates the docco style docs was written and currently maintained by the <a href="http://circumflex.ru/">cicumflex</a> team.</p>
 <p>Simply insert the following lines in your ./project/plugins/build.sbt:</p>
-<pre><code>addSbtPlugin("com.github.philcali" % "sbt-lwjgl-plugin" % "0.1.0")</code></pre>
+<pre><code>addSbtPlugin("com.github.philcali" % "sbt-cx-docco" % "0.1.2")</code></pre>
 <p>Enjoy!</p>
 
       </td>
@@ -87,6 +89,8 @@ import ru.circumflex.docco._</code></pre>
 
     val properties = TaskKey[Unit](&quot;docco-properties&quot;,
           &quot;Builds the cx.properties file for batch processing&quot;)
+
+    val generate = TaskKey[Unit](&quot;docco-generate&quot;, &quot;Docco style documentation generations&quot;)
   }
 
   private def doccoPropertiesTask = 
@@ -121,8 +125,6 @@ import ru.circumflex.docco._</code></pre>
     s.log.info(&quot;Setting docco properties ... done.&quot;)
   }
 
-  lazy val doccoTask = TaskKey[Unit](&quot;docco&quot;, &quot;Docco style documentation generations&quot;)
-
   lazy val doccoSettings: Seq[Setting[_]] = Seq (</code></pre>
       </td>
     </tr>
@@ -140,7 +142,9 @@ import ru.circumflex.docco._</code></pre>
   <li>docco.filenameRegex is the regex to filter physical files</li>
   <li>docco.title is the title of the index page</li>
   <li>docco.stripScaladoc strips any Scaladoc tags</li>
-  <li>docco.skipEmpty will not include a file with documentation</li>
+  <li>docco.skipEmpty will not include a file without documentation</li>
+  <li>docco.properties sets the global docco property values for generation</li>
+  <li>docco.generate run the actual docco generation</li>
 </ul>
 
       </td>
@@ -157,16 +161,18 @@ import ru.circumflex.docco._</code></pre>
 
     // Configurable tasks
     properties &lt;&lt;= doccoPropertiesTask,
-    doccoTask &lt;&lt;= (streams) map { s =&gt;
+    generate &lt;&lt;= (streams) map { s =&gt;
       s.log.info(&quot;Generating docco's now...&quot;)
       val batch = new DoccoBatch
       batch.generate
       s.log.info(&quot;Done&quot;)
     },
-    doccoTask &lt;&lt;= doccoTask dependsOn properties,
+    generate &lt;&lt;= generate dependsOn properties,
+
+    cleanFiles &lt;+= outputPath,
 
     aggregate in properties := false,
-    aggregate in doccoTask := false
+    aggregate in generate := false
   )
 }</code></pre>
       </td>
