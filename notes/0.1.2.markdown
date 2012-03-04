@@ -1,0 +1,4 @@
+## Breaking Changes
+
+- Plugin is now in `com.github.philcali` package
+- `doccoTask` is now under the `docco` object as `generate`. This means `docco` has been renamed to `docco-generate`.

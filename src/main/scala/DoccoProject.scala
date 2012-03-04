@@ -1,3 +1,5 @@
+package com.github.philcali
+
 import sbt._
 
 import Keys._
@@ -19,7 +21,7 @@ maintained by the [cicumflex][circumflex] team.
 
 Simply insert the following lines in your ./project/plugins/build.sbt:
 
-    addSbtPlugin("com.github.philcali" % "sbt-lwjgl-plugin" % "0.1.0")
+    addSbtPlugin("com.github.philcali" % "sbt-cx-docco" % "0.1.2")
 
 Enjoy!
 
@@ -57,6 +59,8 @@ object DoccoPlugin extends Plugin {
 
     val properties = TaskKey[Unit]("docco-properties",
           "Builds the cx.properties file for batch processing")
+
+    val generate = TaskKey[Unit]("docco-generate", "Docco style documentation generations")
   }
 
   private def doccoPropertiesTask = 
@@ -91,19 +95,19 @@ object DoccoPlugin extends Plugin {
     s.log.info("Setting docco properties ... done.")
   }
 
-  lazy val doccoTask = TaskKey[Unit]("docco", "Docco style documentation generations")
-
   lazy val doccoSettings: Seq[Setting[_]] = Seq (
     /*! ## Configurable Settings
 
-  * doccoBasePath is where the crawler will start its search
-  * doccoOutputPath is where you want your docco's
-  * doccoPageTemplate is the path to the template producing this page
-  * doccoIndexTemplate is the path to the template producing the previous page 
-  * doccoFilenameRegex is the regex to filter physical files
-  * doccoTitle is the title of the index page
-  * doccoStripScaladoc strips any Scaladoc tags
-  * doccoSkipEmpty will not include a file with documentation
+  * docco.basePath is where the crawler will start its search
+  * docco.outputPath is where you want your docco's
+  * docco.pageTemplate is the path to the template producing this page
+  * docco.indexTemplate is the path to the template producing the previous page 
+  * docco.filenameRegex is the regex to filter physical files
+  * docco.title is the title of the index page
+  * docco.stripScaladoc strips any Scaladoc tags
+  * docco.skipEmpty will not include a file without documentation
+  * docco.properties sets the global docco property values for generation
+  * docco.generate run the actual docco generation
     */
     // Configurable Settings
     basePath := file("."),
@@ -117,17 +121,17 @@ object DoccoPlugin extends Plugin {
 
     // Configurable tasks
     properties <<= doccoPropertiesTask,
-    doccoTask <<= (streams) map { s =>
+    generate <<= (streams) map { s =>
       s.log.info("Generating docco's now...")
       val batch = new DoccoBatch
       batch.generate
       s.log.info("Done")
     },
-    doccoTask <<= doccoTask dependsOn properties,
+    generate <<= generate dependsOn properties,
 
     cleanFiles <+= outputPath,
 
     aggregate in properties := false,
-    aggregate in doccoTask := false
+    aggregate in generate := false
   )
 }
