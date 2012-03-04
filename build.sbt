@@ -1,3 +1,5 @@
+import com.github.philcali.DoccoPlugin.docco
+
 seq(doccoSettings: _*)
 
 docco.title := "SBT Docco Plugin"
