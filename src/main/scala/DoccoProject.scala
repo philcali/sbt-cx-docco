@@ -55,8 +55,19 @@ object DoccoPlugin extends Plugin {
     val skipEmpty = SettingKey[Boolean]("docco-skip-empty",
           "If true, filters docco's with no markdown.")
 
+    val useScaladoc = SettingKey[Boolean]("docco-use-scaladoc",
+          "Uses Scaladoc to generate Docco documentation")
+
     val properties = TaskKey[Unit]("docco-properties",
           "Builds the cx.properties file for batch processing")
+  }
+
+  /**
+    * This is some ScalaDoc
+    */
+  private def doccoMorePropertiesTask = (useScaladoc) map {
+    (us) =>
+      cx("docco.useScaladoc") = us
   }
 
   private def doccoPropertiesTask = 
@@ -104,6 +115,7 @@ object DoccoPlugin extends Plugin {
   * doccoTitle is the title of the index page
   * doccoStripScaladoc strips any Scaladoc tags
   * doccoSkipEmpty will not include a file with documentation
+  * useScaladoc uses Scaladoc to generate Docco documentation
     */
     // Configurable Settings
     basePath := file("."),
@@ -114,9 +126,12 @@ object DoccoPlugin extends Plugin {
     docco.title <<= name,
     stripScaladoc := true,
     skipEmpty := true,
+    useScaladoc := false,
 
     // Configurable tasks
     properties <<= doccoPropertiesTask,
+    properties <<= doccoPropertiesTask dependsOn doccoMorePropertiesTask,
+
     doccoTask <<= (streams) map { s =>
       s.log.info("Generating docco's now...")
       val batch = new DoccoBatch

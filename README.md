@@ -35,5 +35,27 @@ Here's a list of all the circumflex settings during the batch docco process
 
 Run the `docco` task to generate docco documentation.
 
+## Hacking
+
+ * See <https://github.com/inca/circumflex> for modifying the Docco source.
+
+ * Hack, hack, hack
+
+ * Run `mvn clean install -pl circumflex-docco -am`
+
+ * Add the following line to `build.sbt` 
+
+    resolvers += "Local Maven Repository" at "file://"+Path.userHome+"/.m2/repository"
+
+*then...*
+
+ * Run `sbt docco`
+
+*or...*
+
+ * Run `sbt publish-local`
+
+ * In your own project add `changing()` to the end of the dependency in your `plugins.sbt`
+
 [gh-pages]: http://philcali.github.com/sbt-cx-docco/
 [circumflex docco]: http://circumflex.ru/projects/docco/index.html
