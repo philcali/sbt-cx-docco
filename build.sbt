@@ -8,7 +8,7 @@ name := "sbt-cx-docco"
 
 organization := "com.github.philcali"
 
-version := "0.1.2"
+version := "0.1.3-SNAPSHOT"
 
 sbtPlugin := true
 
