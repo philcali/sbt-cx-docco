@@ -66,19 +66,11 @@ object DoccoPlugin extends Plugin {
     val generate = TaskKey[Unit]("docco-generate", "Docco style documentation generations")
   }
 
-  /**
-    * This is some ScalaDoc
-    */
-  private def doccoMorePropertiesTask = (useScaladoc) map {
-    (us) =>
-      cx("docco.useScaladoc") = us
-  }
-
   private def doccoPropertiesTask = 
     (basePath, outputPath, pageTemplate,
     indexTemplate, filenameRegex, title, 
-    stripScaladoc, skipEmpty, streams) map {
-    (bp, op, pt, it, fr, ti, ss, se, s)  =>
+    stripScaladoc, skipEmpty, useScaladoc) map {
+    (bp, op, pt, it, fr, ti, ss, se, us)  =>
     // Settings circumflex properties
     cx("docco.basePath") = bp
     cx("docco.outputPath") = op
@@ -102,8 +94,7 @@ object DoccoPlugin extends Plugin {
     cx("docco.title") = ti
     cx("docco.stripScaladoc") = ss
     cx("docco.skipEmpty") = se
-    
-    s.log.info("Setting docco properties ... done.")
+    cx("docco.useScaladoc") = us
   }
 
   lazy val doccoSettings: Seq[Setting[_]] = Seq (
@@ -133,7 +124,7 @@ object DoccoPlugin extends Plugin {
     useScaladoc := false,
 
     // Configurable tasks
-    properties <<= doccoPropertiesTask dependsOn doccoMorePropertiesTask,
+    properties <<= doccoPropertiesTask,
 
     generate <<= (streams) map { s =>
       s.log.info("Generating docco's now...")
