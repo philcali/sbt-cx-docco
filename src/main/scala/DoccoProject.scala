@@ -21,7 +21,7 @@ maintained by the [cicumflex][circumflex] team.
 
 Simply insert the following lines in your ./project/plugins/build.sbt:
 
-    addSbtPlugin("com.github.philcali" % "sbt-cx-docco" % "0.1.2")
+    addSbtPlugin("com.github.philcali" % "sbt-cx-docco" % "0.1.3")
 
 Enjoy!
 
@@ -132,7 +132,7 @@ object DoccoPlugin extends Plugin {
       batch.generate
       s.log.info("Done")
     },
-    generate <<= generate dependsOn properties,
+    generate <<= generate dependsOn (properties, (compile in Compile)),
 
     cleanFiles <+= outputPath,
 

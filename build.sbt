@@ -8,13 +8,13 @@ name := "sbt-cx-docco"
 
 organization := "com.github.philcali"
 
-version := "0.1.3-SNAPSHOT"
+version := "0.1.3"
 
 sbtPlugin := true
 
 scalacOptions += "-deprecation"
 
-libraryDependencies += "ru.circumflex" % "circumflex-docco" % "2.1"
+libraryDependencies += "ru.circumflex" % "circumflex-docco" % "2.2"
 
 publishTo <<= version { v =>
   val nexus = "https://oss.sonatype.org/"
