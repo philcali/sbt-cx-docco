@@ -7,7 +7,7 @@ Here's an example on this very plugin: [gh-pages][gh-pages]
 Include the plugin in your `project/plugins.sbt`
 
 ``` scala
-addSbtPlugin("com.github.philcali" % "sbt-cx-docco" % "0.1.2")
+addSbtPlugin("com.github.philcali" % "sbt-cx-docco" % "0.1.3")
 ```
 
 Your project definition may vary. The plugin allows pretty granular control over what
@@ -69,7 +69,7 @@ docco.outputPath <<= (target) { _ / "docco" },
 docco.pageTemplate := file(".") / "docco-batch-page.html.ftl",
 docco.indexTemplate := file(".") / "docco-index.html.ftl",
 docco.filenameRegex := """.*\.scala$""".r,
-docco.title <<= name,  
+docco.title <<= name,
 docco.stripScaladoc := true,
 docco.skipEmpty := true
 
